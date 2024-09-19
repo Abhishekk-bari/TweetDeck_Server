@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// This block specifies the client generator
+// which generates the Prisma Client API
+generator client {
+  provider = "prisma-client-js"
+}
+
+// This block specifies the data source
+// which is a PostgreSQL database
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Uses the DATABASE_URL environment variable
+}
+
+// This block defines the User model
+// with various fields and attributes
+model User {
+  id String @id @default(cuid()) // Unique identifier for each user
+  firstName String 
+  lastName String?    
+  email String  @unique 
+  profileImageURL String ? 
+
+  createdAT DateTime @default(now()) // Timestamp for when the user was created
+  updatedAT DateTime @updatedAt // Timestamp for when the user was last updated
+
+  tweets Tweet[]
+}
+
+model Tweet {
+  id String @id @default(cuid()) // Unique identifier for each user
+  content String
+  imageURL String?
+
+  author User @relation(fields: [authorId], references: [id])
+  authorId String
+
+  createdAT DateTime @default(now()) // Timestamp for when the user was created
+  updatedAT DateTime @updatedAt // Timestamp for when the user was last updated
+}
