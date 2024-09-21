@@ -25,7 +25,7 @@ interface GoogleTokenResult { // Define an interface for the expected structure 
 }
 
 const queries = {
-    verifyGoogleToken: async (parent: any, { token }: { token: string }) => {
+    verifyGoogleToken: async (_parent: any, { token }: { token: string }) => {
         try {
             const googleToken = token; // Store the incoming token for verification.
             
@@ -78,7 +78,7 @@ const queries = {
             throw new Error(`Failed to verify Google token: ${error.message}`);
         }
     },
-    getCurrentUser :async(parent: any, args: any, ctx: GraphqlContext) => {
+    getCurrentUser :async(_parent: any, _args: any, ctx: GraphqlContext) => {
         const id = ctx.user?.id
         if(!id) return null
 
@@ -86,9 +86,9 @@ const queries = {
         return user;
     },
     getUserById: async ( 
-        parent: any, 
+        _parent: any, 
         {id}: { id: string }, 
-        ctx: GraphqlContext
+        _ctx: GraphqlContext
     ) => prismaClient.user.findUnique({ where: { id } }),
 };
 

@@ -19,7 +19,7 @@ const jwt_1 = __importDefault(require("./../../services/jwt")); // Import JWT se
 const db_1 = require("../../client/db");
 const prisma = new client_1.PrismaClient(); // Instantiate PrismaClient to interact with the database.
 const queries = {
-    verifyGoogleToken: (parent_1, _a) => __awaiter(void 0, [parent_1, _a], void 0, function* (parent, { token }) {
+    verifyGoogleToken: (_parent_1, _a) => __awaiter(void 0, [_parent_1, _a], void 0, function* (_parent, { token }) {
         try {
             const googleToken = token; // Store the incoming token for verification.
             if (!googleToken) {
@@ -59,7 +59,7 @@ const queries = {
             throw new Error(`Failed to verify Google token: ${error.message}`);
         }
     }),
-    getCurrentUser: (parent, args, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+    getCurrentUser: (_parent, _args, ctx) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const id = (_a = ctx.user) === null || _a === void 0 ? void 0 : _a.id;
         if (!id)
@@ -67,7 +67,7 @@ const queries = {
         const user = yield db_1.prismaClient.user.findUnique({ where: { id } });
         return user;
     }),
-    getUserById: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { id }, ctx) { return db_1.prismaClient.user.findUnique({ where: { id } }); }),
+    getUserById: (_parent_1, _a, _ctx_1) => __awaiter(void 0, [_parent_1, _a, _ctx_1], void 0, function* (_parent, { id }, _ctx) { return db_1.prismaClient.user.findUnique({ where: { id } }); }),
 };
 const extraResolvers = {
     User: {
