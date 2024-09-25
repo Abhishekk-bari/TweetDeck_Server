@@ -1,4 +1,7 @@
+import * as dotenv from 'dotenv'
 import { initServer } from "./app"; // Importing the initServer function from the app module
+
+dotenv.config();
 
 async function init() { // Defining an asynchronous function to initialize and start the server
     const app = await initServer(); // Calling initServer and waiting for it to initialize the Express app
