@@ -32,6 +32,7 @@ export async function initServer() { // Defining an asynchronous function to ini
 
             type Mutation {
                 ${Tweet.mutations}
+                ${User.mutations}
             }
         `,
         resolvers: { 
@@ -41,6 +42,7 @@ export async function initServer() { // Defining an asynchronous function to ini
             },
             Mutation: {
                 ...Tweet.resolvers.mutations,
+                ...User.resolvers.mutations
             },
             ...Tweet.resolvers.extraResolvers, 
             ...User.resolvers.extraResolvers,

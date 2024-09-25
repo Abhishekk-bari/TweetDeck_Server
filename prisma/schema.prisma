@@ -17,24 +17,37 @@ datasource db {
 // This block defines the User model
 // with various fields and attributes
 model User {
-  id String @id @default(cuid()) // Unique identifier for each user
-  firstName String 
-  lastName String?    
-  email String  @unique 
-  profileImageURL String ? 
+  id              String  @id @default(cuid()) // Unique identifier for each user
+  firstName       String
+  lastName        String?
+  email           String  @unique
+  profileImageURL String?
 
   createdAT DateTime @default(now()) // Timestamp for when the user was created
   updatedAT DateTime @updatedAt // Timestamp for when the user was last updated
 
+  followers Follows[] @relation("follower")
+  following Follows[] @relation("following")
+
   tweets Tweet[]
 }
 
+model Follows {
+  follower   User   @relation("follower", fields: [followerId], references: [id])
+  followerId String
+
+  following   User   @relation("following", fields: [followingId], references: [id])
+  followingId String
+
+  @@id([followerId, followingId])
+}
+
 model Tweet {
-  id String @id @default(cuid()) // Unique identifier for each user
-  content String
+  id       String  @id @default(cuid()) // Unique identifier for each user
+  content  String
   imageURL String?
 
-  author User @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id])
   authorId String
 
   createdAT DateTime @default(now()) // Timestamp for when the user was created
