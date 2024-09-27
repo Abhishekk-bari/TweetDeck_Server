@@ -1,6 +1,6 @@
 // In user.ts
 export const types = `
-  
+
 type User {
         id: ID!
         firstName: String!
@@ -10,6 +10,8 @@ type User {
 
         followers: [User]
         following: [User]
+
+        recommendedUsers: [User]
 
         tweets: [Tweet]
 

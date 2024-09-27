@@ -16,6 +16,7 @@ exports.resolvers = void 0;
 const client_1 = require("@prisma/client"); // Import PrismaClient from Prisma to interact with the database.
 const db_1 = require("../../client/db");
 const user_1 = __importDefault(require("../../services/user"));
+const redis_1 = require("../../clients/redis");
 const prisma = new client_1.PrismaClient(); // Instantiate PrismaClient to interact with the database.
 const queries = {
     verifyGoogleToken: (parent_1, _a) => __awaiter(void 0, [parent_1, _a], void 0, function* (parent, { token }) {
@@ -40,7 +41,7 @@ const extraResolvers = {
                 where: { following: { id: parent.id } },
                 include: {
                     follower: true,
-                }
+                },
             });
             return result.map((el) => el.follower);
         }),
@@ -49,23 +50,60 @@ const extraResolvers = {
                 where: { follower: { id: parent.id } },
                 include: {
                     following: true,
-                }
+                },
             });
             return result.map((el) => el.following);
+        }),
+        recommendedUsers: (parent, _, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+            if (!ctx.user)
+                return [];
+            const cachedValue = yield redis_1.redisClient.get(`RECOMMENDED_USERS:${ctx.user.id}`);
+            if (cachedValue) {
+                console.log("Cache Found");
+                return JSON.parse(cachedValue);
+            }
+            ;
+            // Fetching my followings
+            const myFollowings = yield db_1.prismaClient.follows.findMany({
+                where: {
+                    follower: { id: ctx.user.id },
+                },
+                include: {
+                    following: {
+                        include: { followers: { include: { following: true } } },
+                    },
+                },
+            });
+            const users = []; // Define users array inside this resolver
+            // Loop through my followings
+            for (const following of myFollowings) {
+                for (const follower of following.following.followers) {
+                    if (follower.following.id !== ctx.user.id &&
+                        myFollowings.findIndex((e) => (e === null || e === void 0 ? void 0 : e.followingId) === follower.following.id) < 0) {
+                        users.push(follower.following);
+                    }
+                }
+            }
+            // Uncomment if caching is needed
+            console.log("Cache Not Found");
+            yield redis_1.redisClient.set(`RECOMMENDED_USERS:${ctx.user.id}`, JSON.stringify(users));
+            return users; // Return the list of recommended users
         })
-    },
+    }
 };
 const mutations = {
     followUser: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { to }, ctx) {
         if (!ctx.user || !ctx.user.id)
             throw new Error("unauthenticated");
         yield user_1.default.followUser(ctx.user.id, to);
+        yield redis_1.redisClient.del(`RECOMMENDED_USERS:${ctx.user.id}`);
         return true;
     }),
     unfollowUser: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { to }, ctx) {
         if (!ctx.user || !ctx.user.id)
             throw new Error("unauthenticated");
         yield user_1.default.unfollowUser(ctx.user.id, to);
+        yield redis_1.redisClient.del(`RECOMMENDED_USERS:${ctx.user.id}`);
         return true;
     }),
 };
