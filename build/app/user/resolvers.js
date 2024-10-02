@@ -62,32 +62,28 @@ const extraResolvers = {
                 console.log("Cache Found");
                 return JSON.parse(cachedValue);
             }
-            ;
+            console.log("Cache Not Found");
             // Fetching my followings
             const myFollowings = yield db_1.prismaClient.follows.findMany({
-                where: {
-                    follower: { id: ctx.user.id },
-                },
-                include: {
-                    following: {
-                        include: { followers: { include: { following: true } } },
-                    },
-                },
+                where: { follower: { id: ctx.user.id } },
+                include: { following: { include: { followers: { include: { following: true } } } } },
             });
-            const users = []; // Define users array inside this resolver
+            console.log("My Followings:", myFollowings);
+            const users = [];
             // Loop through my followings
             for (const following of myFollowings) {
                 for (const follower of following.following.followers) {
+                    console.log("Processing follower:", follower.following.id); // Log to check IDs
                     if (follower.following.id !== ctx.user.id &&
                         myFollowings.findIndex((e) => (e === null || e === void 0 ? void 0 : e.followingId) === follower.following.id) < 0) {
                         users.push(follower.following);
                     }
                 }
             }
+            console.log("Users to be cached:", users); // Add log to inspect the users array
             // Uncomment if caching is needed
-            console.log("Cache Not Found");
             yield redis_1.redisClient.set(`RECOMMENDED_USERS:${ctx.user.id}`, JSON.stringify(users));
-            return users; // Return the list of recommended users
+            return users;
         })
     }
 };

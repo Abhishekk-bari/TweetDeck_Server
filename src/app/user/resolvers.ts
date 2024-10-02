@@ -53,52 +53,51 @@ const extraResolvers = {
 
     recommendedUsers: async (parent: User, _: any, ctx: GraphqlContext) => {
       if (!ctx.user) return [];
+    
       const cachedValue = await redisClient.get(
         `RECOMMENDED_USERS:${ctx.user.id}`
       );
-
+    
       if (cachedValue) {
-        console.log("Cache Found")
-        return JSON.parse(cachedValue)
-      };
-
+        console.log("Cache Found");
+        return JSON.parse(cachedValue);
+      }
+    
+      console.log("Cache Not Found");
+    
       // Fetching my followings
       const myFollowings = await prismaClient.follows.findMany({
-        where: {
-          follower: { id: ctx.user.id },
-        },
-        include: {
-          following: {
-            include: { followers: { include: { following: true } } },
-          },
-        },
+        where: { follower: { id: ctx.user.id } },
+        include: { following: { include: { followers: { include: { following: true } } } } },
       });
-
-      const users: User[] = []; // Define users array inside this resolver
-
+    
+      console.log("My Followings:", myFollowings);
+    
+      const users: User[] = [];
+    
       // Loop through my followings
       for (const following of myFollowings) {
         for (const follower of following.following.followers) {
+          console.log("Processing follower:", follower.following.id); // Log to check IDs
           if (
             follower.following.id !== ctx.user.id &&
-            myFollowings.findIndex(
-              (e) => e?.followingId === follower.following.id
-            ) < 0
+            myFollowings.findIndex((e) => e?.followingId === follower.following.id) < 0
           ) {
             users.push(follower.following);
           }
         }
       }
-
+    
+      console.log("Users to be cached:", users); // Add log to inspect the users array
+    
       // Uncomment if caching is needed
-      console.log("Cache Not Found")
       await redisClient.set(
         `RECOMMENDED_USERS:${ctx.user.id}`,
         JSON.stringify(users)
       );
-
-      return users; // Return the list of recommended users
-    }
+    
+      return users;
+    }    
   }
 };
 
