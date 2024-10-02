@@ -28,7 +28,7 @@ jobs:
           echo "Deploying to the deploy branch......"
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
-          git checkout -b deploy
+          git checkout  deploy
           git add .
           git commit -m "Deploying latest changes"
           git push origin deploy
