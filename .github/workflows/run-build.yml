@@ -30,4 +30,4 @@ jobs:
           git commit -m "Deploying latest changes"
           git push origin deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_SECRET }}
