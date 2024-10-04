@@ -43,7 +43,7 @@ jobs:
           git rebase master
 
           # Add built files (adjust the path as needed)
-          git add dist/ -f  # or whatever your build output directory is
+          git add build/ -f  # or whatever your build output directory is
           git commit -m "Deploy latest changes"
 
           # Push to deploy branch
