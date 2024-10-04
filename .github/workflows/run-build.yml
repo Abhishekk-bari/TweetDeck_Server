@@ -36,7 +36,7 @@ jobs:
           git checkout -b deploy origin/deploy
 
           # Get the latest changes from main branch
-                    git fetch origin master:master
+          git fetch origin master:master
 
 
           # Reset the deploy branch to main (alternative to rebase)
